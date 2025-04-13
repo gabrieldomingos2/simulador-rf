@@ -4,8 +4,14 @@ exports.handler = async (event) => {
   try {
     const { lat, lon, alt } = JSON.parse(event.body);
 
-    const url = `https://gabrieldomingoss.app.n8n.cloud/webhook/sinal?lat=${lat}&lon=${lon}&alt=${alt}`;
-    const response = await fetch(url);
+    const url = "https://gabrieldomingoss.app.n8n.cloud/webhook/sinal";
+    
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lat, lon, alt })
+    });
+
     const data = await response.json();
 
     return {
