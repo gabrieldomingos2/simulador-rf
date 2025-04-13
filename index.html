@@ -59,15 +59,18 @@
       resultado.innerHTML = "⏳ Enviando dados para o simulador...";
 
       try {
+        console.log("🔄 Enviando para a API:", { lat, lon, alt });
+
         const response = await fetch("/.netlify/functions/simulador", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ lat, lon, alt })
         });
 
-        const data = await response.json();
-        console.log("Resposta da API:", data);
+        console.log("📦 Status da resposta:", response.status);
 
+        const data = await response.json();
+        console.log("📥 Resposta da API:", data);
 
         if (data[0] && data[0].kmz) {
           resultado.innerHTML = `
@@ -80,7 +83,7 @@
         }
       } catch (error) {
         resultado.innerHTML = "❌ Erro ao enviar a simulação.";
-        console.error(error);
+        console.error("🔥 Erro ao chamar a API:", error);
       }
     }
   </script>
