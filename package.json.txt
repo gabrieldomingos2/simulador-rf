@@ -1,7 +1,1 @@
-{
-  "name": "simulador-rf",
-  "version": "1.0.0",
-  "dependencies": {
-    "node-fetch": "^2.6.7"
-  }
-}
+remove package.json.txt
