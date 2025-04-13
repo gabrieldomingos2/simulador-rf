@@ -140,8 +140,10 @@
           });
 
           const data = await res.json();
+
           if (data[0] && data[0].kmz) {
-            links.push(`<li><a href="${data[0].kmz}" download>📥 Baixar KMZ - ${ponto.lat}, ${ponto.lon}</a></li>`);
+            const kmzProxy = `/.netlify/functions/download?url=${encodeURIComponent(data[0].kmz)}`;
+            links.push(`<li><a href="${kmzProxy}" download>📥 Baixar KMZ - ${ponto.lat}, ${ponto.lon}</a></li>`);
           } else {
             links.push(`<li>❌ Erro na simulação para ${ponto.lat}, ${ponto.lon}</li>`);
           }
