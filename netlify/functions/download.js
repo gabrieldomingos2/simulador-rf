@@ -12,9 +12,10 @@ exports.handler = async (event) => {
       };
     }
 
+    // Faz o download do arquivo com a chave de API
     const response = await fetch(url, {
       headers: {
-        "key": API_KEY,
+        key: API_KEY,
       },
     });
 
@@ -37,6 +38,7 @@ exports.handler = async (event) => {
       body: buffer.toString("base64"),
       isBase64Encoded: true,
     };
+
   } catch (err) {
     return {
       statusCode: 500,
