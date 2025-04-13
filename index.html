@@ -1,96 +1,181 @@
-<script>
-  let pontos = [];
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Cobertura RF</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      padding: 30px;
+      max-width: 700px;
+      margin: auto;
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .lista {
+      margin-top: 20px;
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .ponto {
+      background: #eef;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-left: 4px solid #007BFF;
+    }
+    .ponto span {
+      display: inline-block;
+      margin-right: 10px;
+    }
+    .remover {
+      background: #e74c3c;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #resultado {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
 
-  function adicionarPonto() {
-    const lat = document.getElementById('lat').value;
-    const lon = document.getElementById('lon').value;
-    const alt = document.getElementById('alt').value;
+  <h2>📡 Simulador de Cobertura RF</h2>
 
-    if (!lat || !lon || !alt) {
-      alert("Preencha todos os campos!");
-      return;
+  <label for="lat">Latitude:</label>
+  <input type="number" id="lat" step="any" placeholder="-14.61">
+
+  <label for="lon">Longitude:</label>
+  <input type="number" id="lon" step="any" placeholder="-45.95">
+
+  <label for="alt">Altura da Antena (em metros):</label>
+  <input type="number" id="alt" step="any" placeholder="50">
+
+  <button onclick="adicionarPonto()">➕ Adicionar Localização</button>
+
+  <div class="lista" id="listaPontos"></div>
+
+  <button onclick="enviarTodos()">📥 Gerar e Baixar KMZs</button>
+
+  <div id="resultado"></div>
+
+  <script>
+    let pontos = [];
+
+    function adicionarPonto() {
+      const lat = document.getElementById('lat').value;
+      const lon = document.getElementById('lon').value;
+      const alt = document.getElementById('alt').value;
+
+      if (!lat || !lon || !alt) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      const ponto = { lat, lon, alt };
+      pontos.push(ponto);
+      renderizarPontos();
     }
 
-    const ponto = { lat, lon, alt };
-    pontos.push(ponto);
-    renderizarPontos();
-  }
-
-  function removerPonto(index) {
-    pontos.splice(index, 1);
-    renderizarPontos();
-  }
-
-  function renderizarPontos() {
-    const lista = document.getElementById('listaPontos');
-    lista.innerHTML = "";
-
-    pontos.forEach((ponto, index) => {
-      lista.innerHTML += `
-        <div class="ponto">
-          <span><strong>Lat:</strong> ${ponto.lat}</span>
-          <span><strong>Lon:</strong> ${ponto.lon}</span>
-          <span><strong>Alt:</strong> ${ponto.alt}m</span>
-          <button class="remover" onclick="removerPonto(${index})">Remover</button>
-        </div>
-      `;
-    });
-  }
-
-  async function enviarTodos() {
-    const resultado = document.getElementById('resultado');
-    resultado.innerHTML = "⏳ Enviando todas as localizações...";
-
-    if (pontos.length === 0) {
-      resultado.innerHTML = "❌ Nenhuma localização adicionada.";
-      return;
+    function removerPonto(index) {
+      pontos.splice(index, 1);
+      renderizarPontos();
     }
 
-    let links = [];
+    function renderizarPontos() {
+      const lista = document.getElementById('listaPontos');
+      lista.innerHTML = "";
 
-    for (let ponto of pontos) {
-      try {
-        const res = await fetch("/.netlify/functions/simulador", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(ponto)
-        });
+      pontos.forEach((ponto, index) => {
+        lista.innerHTML += `
+          <div class="ponto">
+            <span><strong>Lat:</strong> ${ponto.lat}</span>
+            <span><strong>Lon:</strong> ${ponto.lon}</span>
+            <span><strong>Alt:</strong> ${ponto.alt}m</span>
+            <button class="remover" onclick="removerPonto(${index})">Remover</button>
+          </div>
+        `;
+      });
+    }
 
-        const data = await res.json();
+    async function enviarTodos() {
+      const resultado = document.getElementById('resultado');
+      resultado.innerHTML = "⏳ Enviando todas as localizações...";
 
-        if (data[0] && data[0].kmz) {
-          const kmzProxy = `/.netlify/functions/download?url=${encodeURIComponent(data[0].kmz)}`;
-          const nomeArquivo = `cobertura_${ponto.lat}_${ponto.lon}.kmz`;
+      if (pontos.length === 0) {
+        resultado.innerHTML = "❌ Nenhuma localização adicionada.";
+        return;
+      }
 
-          links.push(`<li><button onclick="baixarKMZ('${kmzProxy}', '${nomeArquivo}')">📥 Baixar KMZ - ${ponto.lat}, ${ponto.lon}</button></li>`);
-        } else {
-          links.push(`<li>❌ Erro na simulação para ${ponto.lat}, ${ponto.lon}</li>`);
+      let links = [];
+
+      for (let ponto of pontos) {
+        try {
+          const res = await fetch("/.netlify/functions/simulador", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(ponto)
+          });
+
+          const data = await res.json();
+
+          if (data[0] && data[0].kmz) {
+            const kmzProxy = `/.netlify/functions/download?url=${encodeURIComponent(data[0].kmz)}`;
+            const nomeArquivo = `cobertura_${ponto.lat}_${ponto.lon}.kmz`;
+            links.push(`<li><button onclick="baixarKMZ('${kmzProxy}', '${nomeArquivo}')">📥 Baixar KMZ - ${ponto.lat}, ${ponto.lon}</button></li>`);
+          } else {
+            links.push(`<li>❌ Erro na simulação para ${ponto.lat}, ${ponto.lon}</li>`);
+          }
+        } catch (error) {
+          links.push(`<li>🔥 Erro de requisição para ${ponto.lat}, ${ponto.lon}</li>`);
         }
-      } catch (error) {
-        links.push(`<li>🔥 Erro de requisição para ${ponto.lat}, ${ponto.lon}</li>`);
+      }
+
+      resultado.innerHTML = `
+        <h3>✅ Simulações finalizadas:</h3>
+        <ul>${links.join("")}</ul>
+      `;
+    }
+
+    async function baixarKMZ(url, nome) {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = nome;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      } catch (err) {
+        alert("❌ Erro ao baixar o KMZ");
+        console.error(err);
       }
     }
+  </script>
 
-    resultado.innerHTML = `
-      <h3>✅ Simulações finalizadas:</h3>
-      <ul>${links.join("")}</ul>
-    `;
-  }
-
-  async function baixarKMZ(url, nome) {
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = nome;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-    } catch (err) {
-      alert("❌ Erro ao baixar o KMZ");
-      console.error(err);
-    }
-  }
-</script>
+</body>
+</html>
