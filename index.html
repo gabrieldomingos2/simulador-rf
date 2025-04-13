@@ -59,18 +59,14 @@
       resultado.innerHTML = "⏳ Enviando dados para o simulador...";
 
       try {
-<<<<<<< HEAD
         console.log("🔄 Enviando para a API:", { lat, lon, alt });
 
-=======
->>>>>>> c04baacd1f62f626b0d63abe1aea832f0d0e3498
         const response = await fetch("/.netlify/functions/simulador", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ lat, lon, alt })
         });
 
-<<<<<<< HEAD
         console.log("📦 Status da resposta:", response.status);
 
         const data = await response.json();
@@ -81,25 +77,13 @@
             ✅ <strong>Simulação concluída com sucesso!</strong><br><br>
             <a href="${data[0].kmz}" target="_blank" download>📥 Baixar KMZ</a>
             ${data[0].PNG_WGS84 ? `<br><br><img src="${data[0].PNG_WGS84}" alt="Cobertura RF" style="max-width:100%;margin-top:10px;">` : ""}
-=======
-        const data = await response.json();
-
-        if (data.kmz) {
-          resultado.innerHTML = `
-            ✅ <strong>${data.mensagem}</strong><br><br>
-            <a href="${data.kmz}" target="_blank" download>📥 Baixar KMZ</a>
->>>>>>> c04baacd1f62f626b0d63abe1aea832f0d0e3498
           `;
         } else {
           resultado.innerHTML = "❌ Erro: O link do KMZ não foi retornado.";
         }
       } catch (error) {
         resultado.innerHTML = "❌ Erro ao enviar a simulação.";
-<<<<<<< HEAD
         console.error("🔥 Erro ao chamar a API:", error);
-=======
-        console.error(error);
->>>>>>> c04baacd1f62f626b0d63abe1aea832f0d0e3498
       }
     }
   </script>
