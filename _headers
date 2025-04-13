@@ -1,0 +1,3 @@
+/.netlify/functions/download
+  Content-Type: application/vnd.google-earth.kmz
+  Content-Disposition: attachment; filename="cobertura.kmz"
