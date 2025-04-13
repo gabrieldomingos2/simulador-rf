@@ -67,10 +67,11 @@
 
         const data = await response.json();
 
-        if (data.kmz) {
+        if (data[0] && data[0].kmz) {
           resultado.innerHTML = `
-            ✅ <strong>${data.mensagem}</strong><br><br>
-            <a href="${data.kmz}" target="_blank" download>📥 Baixar KMZ</a>
+            ✅ <strong>Simulação concluída com sucesso!</strong><br><br>
+            <a href="${data[0].kmz}" target="_blank" download>📥 Baixar KMZ</a>
+            ${data[0].PNG_WGS84 ? `<br><br><img src="${data[0].PNG_WGS84}" alt="Cobertura RF" style="max-width:100%;margin-top:10px;">` : ""}
           `;
         } else {
           resultado.innerHTML = "❌ Erro: O link do KMZ não foi retornado.";
